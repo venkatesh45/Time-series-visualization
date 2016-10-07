@@ -355,10 +355,17 @@ d3.tsv("data.tsv", function(error, data)
 			var mouse = d3.mouse(svg1.node()).map(function(d) {
                      return parseInt(d);
                     });
+                    var xCoordinate = d3.mouse(this)[0];
+					var domainX = x.invert(xCoordinate);
+					var Year=1900+domainX.getYear();
+					var yCoordinate = d3.mouse(this)[1];
+					var domainY = y.invert(yCoordinate);
+					var rate=domainY.toFixed(1);
+					debugger;
                     tooltip.classed('hidden', false)
                         .attr('style', 'left:' + (mouse[0]) +
                                 'px; top:' + (mouse[1]) + 'px')
-                        .html(d1[0].State);
+                        .html(d1[0].State+"<br />Year:"+Year+"<br />Rate:"+rate);
 				focus.selectAll(".line")
 					.attr("stroke-opacity",function(d2){
 						if(d1==d2)
@@ -369,6 +376,7 @@ d3.tsv("data.tsv", function(error, data)
 					
 			})
 			.on("mouseout",function(d1){
+			tooltip.classed('hidden',true);
 				focus.selectAll(".line")
 					.attr("stroke-opacity",1);
 			});
