@@ -207,7 +207,6 @@ function clicked(d) {
       scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / width, dy / height))),
       translate = [width / 2 - scale * xx, height / 2 - scale * y];
 	  document.getElementById("i"+d.id).style.fill = colors[d.id-1];
-	  debugger;
 	update(d);
 	
 }
@@ -390,9 +389,17 @@ d3.tsv("data.tsv", function(error, data)
 						else 
 							return 0.01;
 					});
+					var stateName=""+d1[0].State;
+					var stateNumber=states.indexOf(stateName)+1;
+					document.getElementById("i"+stateNumber).style.fill = "#666";
+					
 					
 			})
 			.on("mouseout",function(d1){
+					var stateName=""+d1[0].State;
+					var stateNumber=states.indexOf(stateName)+1;
+					document.getElementById("i"+stateNumber).style.fill = colors[stateNumber-1];
+					debugger;
 				tooltip.classed('hidden',true);
 				focus.selectAll(".line")
 					.attr("stroke-opacity",1);
