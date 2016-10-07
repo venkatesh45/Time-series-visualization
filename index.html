@@ -27,6 +27,7 @@ path {
         stroke: #000;
         stroke-width: 1px;
     }
+	
     .province:hover {
         fill: #666;
     }
@@ -90,6 +91,7 @@ svg {
 </style>
 </head>
 <body>
+<h2><center>Time Series Visualization</center></h2>
 <script src="d3.v3.min.js"></script>
 <script src="topojson.v1.min.js"></script>
 <div style="float:left;position:relative;margin-left:-5px;">
@@ -121,6 +123,10 @@ var g = svg1.append("g");
 
 var tooltip = d3.select('body').append('div')
             .attr('class', 'hidden tooltip');
+
+var colors=["#0000FF","#8A2BE2","","#A52A2A","#DEB887","#5F9EA0","","#7FFF00","#D2691E","#6495ED","","#DC143C","#00FFFF","","#00008B","#008B8B","#B8860B","#006400","#E9967A","#8FBC8F","#483D8B","#9400D3",
+			"#FF5349","#FDBCB4","#EA7E5D","#FF7538","#FF8243","#CD9575","#DEAA88","#FFBD88","#EFDBC5","#8A795D","#FCD975","#F0E891","#FDFC74","#C5E384","#A8E4A0","#71BC78","#1CAC78","#3BB08F",
+			"#158078","#77DDE7","","","#199EBD","#77DDE7","#199EBD","#9ACEEB","#2B6CC4","#B0B7C6","#979AAA","","#7442C8","#926EAE","#C364C5","#8E4585","#FF48D0","#6E5160","#F664AF","#F75394","#FDD7E4"];
 			
 var states=["Alabama","Alaska","","Arizona","Arkansas","California","","Colorado","Connecticut","Delaware","","Florida","Georgia","","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts"
 ,"Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma"
@@ -134,10 +140,13 @@ d3.json("us.json", function(error, us) {
      .data(topojson.feature(us, us.objects.states).features)
      .enter();
 	provinces.append('path')
+		.attr('id',function(d){return 'i'+d.id;})
 		.attr('class', function(d) {
                     return 'province ' + d.id;
                 })
+		
       .attr('d', path)
+	  
       .on('mousemove', function(d) {
 					var mouse = d3.mouse(svg1.node()).map(function(d) {
                      return parseInt(d);
@@ -169,7 +178,9 @@ function Nationalclick(d){
 				if(i==3||i==7||i==11||i==14||i==43||i==44||i==52){
 					continue;
 				}
+					document.getElementById("i"+i).style.fill = "#fff";
 					document.getElementById("idno"+i).style.display = "none";
+					
 			}
 		}
 		else{
@@ -177,7 +188,9 @@ function Nationalclick(d){
 				if(i==3||i==7||i==11||i==14||i==43||i==44||i==52){
 					continue;
 				}
+					document.getElementById("i"+i).style.fill = colors[i-1];
 					document.getElementById("idno"+i).style.display = "";
+					
 			}
 		}
 	}
@@ -193,12 +206,15 @@ function clicked(d) {
       yy = (bounds[0][1] + bounds[1][1]) / 2,
       scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / width, dy / height))),
       translate = [width / 2 - scale * xx, height / 2 - scale * y];
+	  document.getElementById("i"+d.id).style.fill = colors[d.id-1];
+	  debugger;
 	update(d);
 	
 }
 
 function reset(d) {
 resetmap(d);
+document.getElementById("i"+d.id).style.fill = "#fff";
   active.classed("active", false);
   active = d3.select(null);
   
@@ -321,13 +337,14 @@ d3.tsv("data.tsv", function(error, data)
 		y2.domain(y.domain());
 		
 		var dataArray=[];
+		var bisector = d3.bisector(function(d){ return d.x; }).left;
+		
 		for(var statename in dataAll){
 			if(statename=="National rate"||statename=="District of Columbia"||statename=="Rhode Island")
 				continue;	
 			dataArray.push(dataAll[statename]);
 		}
 		dataArray.push(dataAll["National rate"]);
-		debugger;
 		var dummy=[];
 		var j=0;
 		
@@ -349,19 +366,19 @@ d3.tsv("data.tsv", function(error, data)
 			.style("display","none")
 			.attr("d",function(d){
 				return valueline(d);})
-			.style("stroke", function(d) {return color(d[0].State);})
+			.style("stroke", function(d) {return colors[i-1];})
 			.attr("clip-path", "url(#clip)")
 			.on("mouseover",function(d1){
 			var mouse = d3.mouse(svg1.node()).map(function(d) {
                      return parseInt(d);
                     });
-                    var xCoordinate = d3.mouse(this)[0];
+					var xCoordinate = d3.mouse(this)[0];
 					var domainX = x.invert(xCoordinate);
 					var Year=1900+domainX.getYear();
 					var yCoordinate = d3.mouse(this)[1];
 					var domainY = y.invert(yCoordinate);
 					var rate=domainY.toFixed(1);
-					debugger;
+					
                     tooltip.classed('hidden', false)
                         .attr('style', 'left:' + (mouse[0]) +
                                 'px; top:' + (mouse[1]) + 'px')
@@ -376,7 +393,7 @@ d3.tsv("data.tsv", function(error, data)
 					
 			})
 			.on("mouseout",function(d1){
-			tooltip.classed('hidden',true);
+				tooltip.classed('hidden',true);
 				focus.selectAll(".line")
 					.attr("stroke-opacity",1);
 			});
