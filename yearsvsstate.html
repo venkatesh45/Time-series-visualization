@@ -87,7 +87,7 @@ var unemplyment_Data={};
 dataTX = {};
 var dataAll=[];
 var stateData=[];
-d3.tsv("data.tsv", function(error, data) {    
+d3.csv("unemplyment.csv", function(error, data) {    
   
   unemplyment_Data=data;
   data.forEach(function(d) {
