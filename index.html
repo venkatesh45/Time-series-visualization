@@ -467,10 +467,75 @@ d3.tsv("data.tsv", function(error, data)
 		focus.select(".x.axis").call(xAxis);
 		focus.select(".y.axis").call(yAxis);
 	}
+	<!-- pump -->
+function pump()
+{ 
+var pump_amount= document.getElementById("pump").value;
+  focus.selectAll(".line")
+  .attr("stroke-opacity", function(unrate){
+    var elevation = false;
+    for(var i=1;i<unrate.length;i++ ){
+    if((unrate[i].unemplyment-unrate[i-1].unemplyment)>pump_amount)
+    elevation = true;
+  debugger;
+    }
+    if (elevation)
+    return 1;
+    else
+    return 0.1;
+}); 
+}
+//x2.domain(x.domain());
+ //   y2.domain(y.domain());
+
+svg.selectAll(".y axis text")  // select all the text elements for the xaxis
+          .attr("transform", function(d) {
+             
+             return "translate(" + this.getBBox().height*-6 + "," + this.getBBox().height + ")";
+         });
+
+//------appending the text-------
+svg.append("text")
+            .attr("text-anchor", "margin-right")  // this makes it easy to centre the text as the transform is applied to the anchor
+            .attr("transform", "rotate(-90)")
+            .attr("y", 45)
+            .attr("x", -180)
+      .attr("dy", "0.71em")
+      .attr("fill", "#000")
+              // text is drawn off the screen top left, move down and out and rotate
+            .text("Unemployment Rate(%)");
+
+
+<!-- drop-->
+function drop()
+{ 
+var drop_amount= document.getElementById("drop").value;
+drop_amount= Number(drop_amount);
+  focus.selectAll(".line")
+  .attr("stroke-opacity", function(unrate){
+    var depression = false;
+    for(var i=1;i<unrate.length;i++ ){
+    if((unrate[i-1].unemplyment-unrate[i].unemplyment)>drop_amount)
+    depression = true;
+    }
+    if (depression)
+    return 1;
+    else
+    return 0.1; 
+});
+
+}
+
+
 </script>
 </div>
 <br>
 <input type="checkbox" name="region" class="region_cb" value="National" id="57" > National Unemployment rate<br>
 <input type="checkbox" name="region" class="region_cb" value="National" id="58" > All States<br>
-<button onclick="yearsvsstate.html">
+
+Rise:<input type="text" name="pump" id="pump">
+<button class='button' onclick= "pump();">pump</button></br>
+
+Drop:<input type="text" name="drop" id="drop" >
+<button class='button' onclick="drop();">drop</button></br>
 </body>
