@@ -6,7 +6,7 @@ body { font: 12px Arial;}
 
 path { 
     stroke: blue;
-    stroke-width: 1;
+    stroke-width: 4;
     fill: none;
 }
 
@@ -35,6 +35,177 @@ div.tooltip {
 
 </style>
 <body>
+<div style="float:left;position:relative;margin-left:-5px;">
+<!-- load the d3.js library -->    
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<!--<button onclick="myFunction()">Click me</button> -->
+<div style="float:left;position:relative;margin-left:-5px;">
+<script>
+
+// Set the dimensions of the canvas / graph
+var margin = {top: 10, right: 10, bottom: 100, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+// Parse the date / time
+var parseDate = d3.time.format("%d-%b-%y").parse;
+var parseDate2 = d3.time.format("%B-%Y").parse;
+
+// Set the ranges
+var x = d3.time.scale().range([0, width]);
+var y = d3.scale.linear().range([height, 0]);
+
+// Define the axes
+var xAxis3 = d3.svg.axis().scale(x)
+    .orient("bottom");
+
+var yAxis3 = d3.svg.axis().scale(y)
+    .orient("left");
+
+var tooltip = d3.select('body').append('div')
+            .attr('class', 'hidden tooltip');
+			
+// Parse the date / time
+var parseDate2 = d3.time.format("%B").parse;
+
+// Define the line
+var valueline = d3.svg.line()
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.unemplyment); });
+    
+// Adds the svg canvas
+var svg2 = d3.select("body")
+    .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+        .attr("transform", 
+              "translate(" + margin.left + "," + margin.top + ")");
+
+var unemplyment_Data={};
+			  
+dataTX = {};
+var dataAll=[];
+var stateData=[];
+d3.tsv("data.tsv", function(error, data) {    
+  
+  unemplyment_Data=data;
+  data.forEach(function(d) {
+	if(dataTX[d.Year]==undefined)
+			dataTX[d.Year]=[];
+        dataTX[d.Year].push(d);
+  });
+debugger;
+  for(var year in dataTX)
+  dataTX[year].forEach(function(d) {
+    d.date = parseDate2(d.Month);
+    d.unemplyment = +d["Unemployment rates by State, not seasonally adjusted"];
+	d.Year=+d["Year"];
+    //    dataTX.push(d);	12px																																																									
+  });
+
+	x.domain(d3.extent(dataTX[1978], function(d) { return d.date; }));
+    y.domain([0,20]);
+  
+    // Add the X Axis
+    svg2.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis3);
+
+    // Add the Y Axis
+    svg2.append("g")
+        .attr("class", "y axis")
+        .call(yAxis3);
+//    debugger;    
+});
+function getGraph(){
+
+var year=document.getElementById('Year').value;
+var e=document.getElementById("usstates");
+var state = e.options[e.selectedIndex].value;
+debugger;
+if(year!=""){
+
+  
+    dataTX[year].forEach(function(d){
+	if(dataAll[d.Year]==undefined)
+			dataAll[d.Year]=[];
+		if(d.State==state)
+				dataAll[d.Year].push(d);
+	});
+	debugger;
+	dataAll[year].forEach(function(d) {
+    d.date = parseDate2(d.Month);
+    d.unemplyment = +d["Unemployment rates by State, not seasonally adjusted"];
+	d.Year=+d["Year"];
+    //    dataTX.push(d);	12px																																																									
+  });
+	stateData.push(dataAll[year]);
+		
+	
+    svg2.selectAll(".line")
+			.data(stateData).enter()
+			.append("path")
+			.attr("class", "line")
+			.attr("d",function(d){
+				return valueline(d);
+			})
+			.on("mouseover",function(d1){
+			var mouse = d3.mouse(svg2.node()).map(function(d) {
+                     return parseInt(d);
+                    });
+					var xCoordinate = d3.mouse(this)[0]+300;
+					var domainX = x.invert(xCoordinate);
+					debugger;
+					var Year=1900+domainX.getYear();
+					var yCoordinate = d3.mouse(this)[1];
+					var domainY = y.invert(yCoordinate);
+					var rate=domainY.toFixed(1);
+					
+                    tooltip.classed('hidden', false)
+                        .attr('style', 'left:' + xCoordinate +
+                                'px; top:' + yCoordinate + 'px')
+                        .html(d1[0].State+"<br />Rate:"+rate);
+						
+						focus.selectAll(".line")
+						.attr("stroke-opacity",function(d2){
+						if(d1==d2)
+							return 1;
+						else 
+							return 0.01;
+					});
+					})
+				.on("mouseout",function(d1){
+					
+				tooltip.classed('hidden',true);
+				
+			});
+	
+}
+else{
+window.alert("Enter Year");
+}
+
+}
+svg2.selectAll(".y axis text")  // select all the text elements for the xaxis
+          .attr("transform", function(d) {
+             
+             return "translate(" + this.getBBox().height*-6 + "," + this.getBBox().height + ")";
+         });
+
+//------appending the text-------
+svg2.append("text")
+            .attr("text-anchor", "margin-right")  // this makes it easy to centre the text as the transform is applied to the anchor
+            .attr("transform", "rotate(-90)")
+            .attr("y", 45)
+            .attr("x", -180)
+      .attr("dy", "0.71em")
+      .attr("fill", "#000")
+              // text is drawn off the screen top left, move down and out and rotate
+            .text("Unemployment Rate(%)");
+</script>
+</div>
 <div style="float:left;position:relative;margin-left:-5px;">
 <table>
 <br>
@@ -97,159 +268,5 @@ div.tooltip {
 <tr><td>Enter a Year: </td><td><input type="text" id="Year" name="Year" value="">*(1978-2016)</td></tr>
 <tr><td></td><td><input type="submit" value="Get Graph" onclick="getGraph();"></td></tr>
 </table>
-<br/>
-
-<!-- load the d3.js library -->    
-<script src="d3.v3.min.js"></script>
-<!--<button onclick="myFunction()">Click me</button> -->
-<div style="float:left;position:relative;margin-left:-5px;">
-<script>
-
-// Set the dimensions of the canvas / graph
-var margin = {top: 30, right: 20, bottom: 30, left: 50},
-    width = 900 - margin.left - margin.right,
-    height = 600 - margin.top - margin.bottom;
-
-// Parse the date / time
-var parseDate = d3.time.format("%d-%b-%y").parse;
-var parseDate2 = d3.time.format("%B-%Y").parse;
-
-// Set the ranges
-var x = d3.time.scale().range([0, width]);
-var y = d3.scale.linear().range([height, 0]);
-
-// Define the axes
-var xAxis = d3.svg.axis().scale(x)
-    .orient("bottom");
-
-var yAxis = d3.svg.axis().scale(y)
-    .orient("left");
-
-var tooltip = d3.select('body').append('div')
-            .attr('class', 'hidden tooltip');
-			
-// Parse the date / time
-var parseDate2 = d3.time.format("%B").parse;
-
-// Define the line
-var valueline = d3.svg.line()
-    .x(function(d) { return x(d.date); })
-    .y(function(d) { return y(d.unemplyment); });
-    
-// Adds the svg canvas
-var svg2 = d3.select("body")
-    .append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-        .attr("transform", 
-              "translate(" + margin.left + "," + margin.top + ")");
-
-var unemplyment_Data={};
-			  
-dataTX = {};
-var dataAll=[];
-var stateData=[];
-d3.csv("unemplyment.csv", function(error, data) {    
-  
-  unemplyment_Data=data;
-  data.forEach(function(d) {
-	if(dataTX[d.Year]==undefined)
-			dataTX[d.Year]=[];
-        dataTX[d.Year].push(d);
-  });
-
-  for(var year in dataTX)
-  dataTX[year].forEach(function(d) {
-    d.date = parseDate2(d.Month);
-    d.unemplyment = +d["Unemployment rates by State, not seasonally adjusted"];
-    //    dataTX.push(d);	12px																																																									
-  });
-
-	x.domain(d3.extent(dataTX[1978], function(d) { return d.date; }));
-    y.domain([0,20]);
-  
-    // Add the X Axis
-    svg2.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
-
-    // Add the Y Axis
-    svg2.append("g")
-        .attr("class", "y axis")
-        .call(yAxis);
-//    debugger;    
-});
-function getGraph(){
-
-var year=document.getElementById('Year').value;
-var e=document.getElementById("usstates");
-var state = e.options[e.selectedIndex].value;
-debugger;
-if(year!=""){
-
-  
-    dataTX[year].forEach(function(d){
-	if(dataAll[d.Year]==undefined)
-			dataAll[d.Year]=[];
-		if(d.State==state)
-				dataAll[d.Year].push(d);
-	});
-	debugger;
-	dataAll[year].forEach(function(d) {
-    d.date = parseDate2(d.Month);
-    d.unemplyment = +d["Unemployment rates by State, not seasonally adjusted"];
-    //    dataTX.push(d);	12px																																																									
-  });
-	stateData.push(dataAll[year]);
-		
-	
-    svg2.selectAll(".line")
-			.data(stateData).enter()
-			.append("path")
-			.attr("class", "line")
-			.attr("stroke-width",1)
-			.attr("d",function(d){
-				return valueline(d);
-			})
-			.on("mouseover",function(d1){
-			var mouse = d3.mouse(svg2.node()).map(function(d) {
-                     return parseInt(d);
-                    });
-					var xCoordinate = d3.mouse(this)[0];
-					var domainX = x.invert(xCoordinate);
-					debugger;
-					var Year=1900+domainX.getYear();
-					var yCoordinate = d3.mouse(this)[1];
-					var domainY = y.invert(yCoordinate);
-					var rate=domainY.toFixed(1);
-					
-                    tooltip.classed('hidden', false)
-                        .attr('style', 'left:' + xCoordinate +
-                                'px; top:' + yCoordinate + 'px')
-                        .html(d1[0].State+"<br />Rate:"+rate);
-						
-						focus.selectAll(".line")
-						.attr("stroke-opacity",function(d2){
-						if(d1==d2)
-							return 1;
-						else 
-							return 0.01;
-					});
-					})
-				.on("mouseout",function(d1){
-					
-				tooltip.classed('hidden',true);
-				
-			});
-	
-}
-else{
-window.alert("Enter Year");
-}
-
-}
-</script>
 </div>
 </body>

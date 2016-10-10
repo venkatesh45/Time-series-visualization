@@ -392,6 +392,7 @@ d3.tsv("data.tsv", function(error, data)
 					var stateName=""+d1[0].State;
 					var stateNumber=states.indexOf(stateName)+1;
 					document.getElementById("i"+stateNumber).style.fill = "#666";
+					//document.getElementById("i"+stateNumber).style.display="";
 					
 					
 			})
@@ -534,12 +535,17 @@ function visitPage(){
 <br>
 <input type="checkbox" name="region" class="region_cb" value="National" id="57" > National Unemployment rate<br>
 <input type="checkbox" name="region" class="region_cb" value="National" id="58" > All States<br>
-Rise:<input type="text" name="pump" id="pump">
-<button class='button' onclick= "pump();">pump</button></br>
-
-Drop:<input type="text" name="drop" id="drop" >
-<button class='button' onclick="drop();">drop</button></br>
-
+<table>
+<tr><td>Rise:</td><td><input type="text" name="pump" id="pump"></td>
+<td><button class='button' onclick= "pump();">pump</button></td></tr>
+<tr><td>Drop:</td><td><input type="text" name="drop" id="drop" ></td>
+<td><button class='button' onclick="drop();">drop</button></td></tr>
+<table>
 <button onclick="visitPage();">Years vs State</button>
+<div>
+
+
+
+</div>
 
 </body>
