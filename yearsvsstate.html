@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style> /* set the CSS */
+
+body { font: 12px Arial;}
+
+path { 
+    stroke: blue;
+    stroke-width: 1;
+    fill: none;
+}
+
+
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+.hidden {
+        display: none;
+    }
+div.tooltip {
+        color: #222;
+        background-color: #fff;
+        padding: .5em;
+        text-shadow: #f5f5f5 0 1px 0;
+        border-radius: 2px;
+        opacity: 0.9;
+        position: absolute;
+    }
+
+</style>
+<body>
+<div style="float:left;position:relative;margin-left:-5px;">
+<table>
+<br>
+<tr><td>Select a State:</td>
+     <td> <select id="usstates">
+	  <option value="select any value">Select an value</option>
+      <option value="Alabama">Alabama</option>
+      <option value="Alaska">Alaska</option>
+      <option value="Arizona">Arizona</option>
+      <option value="Arkansas">Arkansas</option>
+      <option value="California">California</option>
+      <option value="Colorado">Colorado</option>
+      <option value="Connecticut">Connecticut</option>
+      <option value="Delaware">Delware</option>
+      <option value="District of Columbia">District of columbia</option>
+      <option value="Florida">Florida</option>
+      <option value="Georgia">Georgia</option>
+      <option value="Hawaii">Hawaii</option>
+      <option value="Idaho">Idaho</option>
+      <option value="Illinois">illinois</option>
+      <option value="Indiana">Indiana</option>
+      <option value="Iowa">Iowa</option>
+      <option value="Kansas">Kansas</option>
+      <option value="Kentucky">Kentucky</option>
+      <option value="Louisiana">Louisiana</option>
+      <option value="Maine">Maine</option>
+      <option value="Maryland">Maryland</option>
+      <option value="Massachusetts">Massachusetts</option>
+      <option value="Michigan">Michigan</option>
+      <option value="Minnesota">Minnesota</option>
+      <option value="Mississippi">mississippi</option>
+      <option value="Missouri">missouri</option>
+      <option value="Montana">Montana</option>
+      <option value="Nebraska">nebraska</option>
+      <option value="Nevada">nevada</option>
+      <option value="New Hampshire">New Hampshire</option>
+      <option value="New Jersey">New Jersey</option>
+      <option value="New Mexico">New Mexico</option>
+      <option value="New York">New York</option>
+      <option value="North Carolina">North Carolina</option>
+      <option value="North Dakota">North Dakota</option>
+      <option value="Ohio">Ohio</option>
+      <option value="Oklahoma">Oklahoma</option>
+      <option value="Oregon">Oregon</option>
+      <option value="Pennsylvania">Pennsylvania</option>
+      <option value="Rhode Island">Rhode Island</option>
+      <option value="South Carolina">South Carolina</option>
+      <option value="South Dakota">South Dakota</option>
+      <option value="Tennessee">Tennessee</option>
+      <option value="Texas">Texas</option>
+      <option value="Utah">Utah</option>
+      <option value="Vermont">Vermont</option>
+      <option value="Virginia">Virginia</option>
+      <option value="Washington">Washington</option>
+      <option value="West Virginia">West Virginia</option>
+      <option value="Wisconsin">Wisconsin</option>
+      <option value="Wyoming">Wycoming</option>
+    </select></td></tr>
+<br>
+<tr><td>Enter a Year: </td><td><input type="text" id="Year" name="Year" value="">*(1978-2016)</td></tr>
+<tr><td></td><td><input type="submit" value="Get Graph" onclick="getGraph();"></td></tr>
+</table>
+<br/>
+
+<!-- load the d3.js library -->    
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<!--<button onclick="myFunction()">Click me</button> -->
+<div style="float:left;position:relative;margin-left:-5px;">
+<script>
+
+// Set the dimensions of the canvas / graph
+var margin = {top: 30, right: 20, bottom: 30, left: 50},
+    width = 900 - margin.left - margin.right,
+    height = 600 - margin.top - margin.bottom;
+
+// Parse the date / time
+var parseDate = d3.time.format("%d-%b-%y").parse;
+var parseDate2 = d3.time.format("%B-%Y").parse;
+
+// Set the ranges
+var x = d3.time.scale().range([0, width]);
+var y = d3.scale.linear().range([height, 0]);
+
+// Define the axes
+var xAxis = d3.svg.axis().scale(x)
+    .orient("bottom");
+
+var yAxis = d3.svg.axis().scale(y)
+    .orient("left");
+
+var tooltip = d3.select('body').append('div')
+            .attr('class', 'hidden tooltip');
+			
+// Parse the date / time
+var parseDate2 = d3.time.format("%B").parse;
+
+// Define the line
+var valueline = d3.svg.line()
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.unemplyment); });
+    
+// Adds the svg canvas
+var svg2 = d3.select("body")
+    .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+        .attr("transform", 
+              "translate(" + margin.left + "," + margin.top + ")");
+
+var unemplyment_Data={};
+			  
+dataTX = {};
+var dataAll=[];
+var stateData=[];
+d3.csv("unemplyment.csv", function(error, data) {    
+  
+  unemplyment_Data=data;
+  data.forEach(function(d) {
+	if(dataTX[d.Year]==undefined)
+			dataTX[d.Year]=[];
+        dataTX[d.Year].push(d);
+  });
+
+  for(var year in dataTX)
+  dataTX[year].forEach(function(d) {
+    d.date = parseDate2(d.Month);
+    d.unemplyment = +d["Unemployment rates by State, not seasonally adjusted"];
+    //    dataTX.push(d);	12px																																																									
+  });
+
+	x.domain(d3.extent(dataTX[1978], function(d) { return d.date; }));
+    y.domain([0,20]);
+  
+    // Add the X Axis
+    svg2.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    // Add the Y Axis
+    svg2.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+//    debugger;    
+});
+function getGraph(){
+
+var year=document.getElementById('Year').value;
+var e=document.getElementById("usstates");
+var state = e.options[e.selectedIndex].value;
+debugger;
+if(year!=""){
+
+  
+    dataTX[year].forEach(function(d){
+	if(dataAll[d.Year]==undefined)
+			dataAll[d.Year]=[];
+		if(d.State==state)
+				dataAll[d.Year].push(d);
+	});
+	debugger;
+	dataAll[year].forEach(function(d) {
+    d.date = parseDate2(d.Month);
+    d.unemplyment = +d["Unemployment rates by State, not seasonally adjusted"];
+    //    dataTX.push(d);	12px																																																									
+  });
+	stateData.push(dataAll[year]);
+		
+	
+    svg2.selectAll(".line")
+			.data(stateData).enter()
+			.append("path")
+			.attr("class", "line")
+			.attr("stroke-width",1)
+			.attr("d",function(d){
+				return valueline(d);
+			})
+			.on("mouseover",function(d1){
+			var mouse = d3.mouse(svg2.node()).map(function(d) {
+                     return parseInt(d);
+                    });
+					var xCoordinate = d3.mouse(this)[0];
+					var domainX = x.invert(xCoordinate);
+					debugger;
+					var Year=1900+domainX.getYear();
+					var yCoordinate = d3.mouse(this)[1];
+					var domainY = y.invert(yCoordinate);
+					var rate=domainY.toFixed(1);
+					
+                    tooltip.classed('hidden', false)
+                        .attr('style', 'left:' + xCoordinate +
+                                'px; top:' + yCoordinate + 'px')
+                        .html(d1[0].State+"<br />Rate:"+rate);
+						
+						focus.selectAll(".line")
+						.attr("stroke-opacity",function(d2){
+						if(d1==d2)
+							return 1;
+						else 
+							return 0.01;
+					});
+					})
+				.on("mouseout",function(d1){
+					
+				tooltip.classed('hidden',true);
+				
+			});
+	
+}
+else{
+window.alert("Enter Year");
+}
+
+}
+</script>
+</div>
+</body>
