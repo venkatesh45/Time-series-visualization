@@ -3,8 +3,9 @@
                                                  Time Series Visualisation
 
 Main page of my project which contains a  United states map and also a line graph with X and Y axis. with X axis representing years and Y axis the unemployment rate.
+![ScreenShot](https://github.com/venkatesh45/Time-series-visualization/blob/master/v1.png)
 
-                                         ![ScreenShot](https://github.com/venkatesh45/Time-series-visualization/blob/master/v1.png)        
+                                      ![ScreenShot](https://github.com/venkatesh45/Time-series-visualization/blob/master/v1.png)        
                  
 For every state when clicked on a map you can find a unemployment rate graph from 1978 to 2016.
       
